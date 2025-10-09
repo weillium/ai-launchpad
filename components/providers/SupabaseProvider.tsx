@@ -1,6 +1,6 @@
 'use client';
 
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
 import {
   SessionContextProvider,
   type Session
@@ -18,7 +18,7 @@ export default function SupabaseProvider({
   initialSession
 }: SupabaseProviderProps) {
   const [supabaseClient] = useState(() =>
-    createBrowserSupabaseClient<Database>()
+    createPagesBrowserClient<Database>()
   );
 
   return (

@@ -8,6 +8,10 @@ const registry: Record<string, ReturnType<typeof dynamic>> = {
   'weather-visualizer': dynamic(() => import('@agents/WeatherVisualizer'), {
     ssr: false,
     loading: () => <p className="text-sm text-text-muted">Loading weather visualizer...</p>
+  }),
+  'text-analyzer': dynamic(() => import('@agents/TextAnalyzer'), {
+    ssr: false,
+    loading: () => <p className="text-sm text-text-muted">Loading text analyzer...</p>
   })
 };
 
@@ -28,10 +32,8 @@ export default function CustomAgentLoader({ session }: CustomAgentLoaderProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface/60 p-6">
-      <Suspense fallback={<p className="text-sm text-text-muted">Loading custom agent...</p>}>
-        <Component session={session} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<p className="text-sm text-text-muted">Loading custom agent...</p>}>
+      <Component session={session} />
+    </Suspense>
   );
 }

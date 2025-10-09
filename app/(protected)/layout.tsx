@@ -11,30 +11,54 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  const {
-    data: { session }
-  } = await supabase.auth.getSession();
+  console.log('🏗️ ProtectedLayout: Starting layout rendering');
+  
+  try {
+    const supabase = createServerComponentClient<Database>({ cookies: () => cookies() });
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
 
-  if (!session) {
-    return <>{children}</>;
+    let agents: Agent[] = [];
+    let sessions: SessionRecord[] = [];
+
+    if (session) {
+      const [{ data: agentsData }, { data: sessionsData }] = await Promise.all([
+        supabase.from('agents').select('*').order('name'),
+        supabase
+          .from('sessions')
+          .select('*, agents(*)')
+          .eq('user_id', session.user.id)
+          .order('last_active_at', { ascending: false })
+      ]);
+      
+      agents = (agentsData ?? []) as Agent[];
+      sessions = (sessionsData ?? []) as SessionRecord[];
+    }
+
+    console.log('🏗️ ProtectedLayout: Rendering WorkspaceProvider with:', {
+      agentsCount: agents.length,
+      sessionsCount: sessions.length,
+      hasSession: !!session
+    });
+
+    return (
+      <WorkspaceProvider
+        initialAgents={agents}
+        initialSessions={sessions}
+      >
+        <AppShell>{children}</AppShell>
+      </WorkspaceProvider>
+    );
+    
+  } catch (error) {
+    console.error('🏗️ ProtectedLayout: Error in layout:', error);
+    // Fallback: render without WorkspaceProvider
+    return (
+      <div>
+        <p>Layout error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        <AppShell>{children}</AppShell>
+      </div>
+    );
   }
-
-  const [{ data: agents }, { data: sessions }] = await Promise.all([
-    supabase.from('agents').select('*').order('name'),
-    supabase
-      .from('sessions')
-      .select('*, agents(*)')
-      .eq('user_id', session.user.id)
-      .order('last_active_at', { ascending: false })
-  ]);
-
-  return (
-    <WorkspaceProvider
-      initialAgents={(agents ?? []) as Agent[]}
-      initialSessions={(sessions ?? []) as SessionRecord[]}
-    >
-      <AppShell>{children}</AppShell>
-    </WorkspaceProvider>
-  );
 }

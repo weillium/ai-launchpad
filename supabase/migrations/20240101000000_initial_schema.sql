@@ -35,8 +35,7 @@ alter table public.agent_runs enable row level security;
 alter table public.agents enable row level security;
 
 create policy "Users can access their sessions" on public.sessions
-  for select using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  for select using (auth.uid() = user_id);
 
 create policy "Users can modify their sessions" on public.sessions
   for update using (auth.uid() = user_id)

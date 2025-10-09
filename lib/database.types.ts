@@ -79,6 +79,28 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['agent_runs']['Insert']>;
         Relationships: [];
       };
+      user_profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          display_name: string | null;
+          email_notifications: boolean | null;
+          auto_save_sessions: boolean | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          display_name?: string | null;
+          email_notifications?: boolean | null;
+          auto_save_sessions?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>;
+        Relationships: [];
+      };
     };
     Views: {};
     Functions: {};
