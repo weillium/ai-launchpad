@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import type { Agent } from '@/hooks/useAgents';
+import { useSession } from '@/components/providers/SessionProvider';
 
 interface AgentModalProps {
   agent: Agent | null;
@@ -9,7 +11,29 @@ interface AgentModalProps {
 }
 
 export default function AgentModal({ agent, isOpen, onClose }: AgentModalProps) {
+  const { createSession } = useSession();
+  const [isLaunching, setIsLaunching] = useState(false);
+
   if (!isOpen || !agent) return null;
+
+  const handleLaunchAgent = async () => {
+    if (!agent) return;
+    
+    try {
+      setIsLaunching(true);
+      console.log('🚀 AgentModal: Launching agent:', agent.name);
+      
+      const newSession = await createSession(agent.id, `${agent.name} Session`);
+      console.log('✅ AgentModal: Agent launched successfully:', newSession.id);
+      
+      onClose();
+    } catch (error) {
+      console.error('❌ AgentModal: Failed to launch agent:', error);
+      // You could add error handling UI here if needed
+    } finally {
+      setIsLaunching(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -94,14 +118,18 @@ export default function AgentModal({ agent, isOpen, onClose }: AgentModalProps) 
             Close
           </button>
           <button
-            onClick={() => {
-              // TODO: Implement agent launch functionality
-              console.log('Launch agent:', agent.name);
-              onClose();
-            }}
-            className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
+            onClick={handleLaunchAgent}
+            disabled={isLaunching}
+            className="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Launch Agent
+            {isLaunching ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Launching...
+              </div>
+            ) : (
+              'Launch Agent'
+            )}
           </button>
         </div>
       </div>

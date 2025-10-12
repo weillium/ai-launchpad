@@ -38,6 +38,8 @@ export interface Database {
           agent_id: string;
           title: string | null;
           session_state: Json | null;
+          is_active: boolean | null;
+          session_metadata: Json | null;
           created_at: string;
           last_active_at: string;
         };
@@ -47,11 +49,28 @@ export interface Database {
           agent_id: string;
           title?: string | null;
           session_state?: Json | null;
+          is_active?: boolean | null;
+          session_metadata?: Json | null;
           created_at?: string;
           last_active_at?: string;
         };
         Update: Partial<Database['public']['Tables']['sessions']['Insert']>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "fk_sessions_agent_id";
+            columns: ["agent_id"];
+            isOneToOne: false;
+            referencedRelation: "agents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fk_sessions_user_id";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       agent_runs: {
         Row: {
@@ -77,7 +96,29 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database['public']['Tables']['agent_runs']['Insert']>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "fk_agent_runs_session_id";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fk_agent_runs_agent_id";
+            columns: ["agent_id"];
+            isOneToOne: false;
+            referencedRelation: "agents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fk_agent_runs_user_id";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       user_profiles: {
         Row: {
@@ -99,7 +140,15 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_profiles_user_id";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: Record<string, never>;

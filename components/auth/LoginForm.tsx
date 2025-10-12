@@ -16,8 +16,8 @@ export default function LoginForm() {
     console.log('🔐 LoginForm: Redirect URL:', `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/auth/callback`);
     
     // Test Supabase connection
-    supabase.auth.getSession().then(({ data, error }) => {
-      console.log('🔐 LoginForm: Current session:', { hasSession: !!data.session, error: error?.message });
+    supabase.auth.getUser().then(({ data, error }) => {
+      console.log('🔐 LoginForm: Current user:', { hasUser: !!data.user, error: error?.message });
     });
 
     // Listen for auth state changes

@@ -1,59 +1,66 @@
-import { cookies } from 'next/headers';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+'use client';
+
+import { useSession } from '@/components/providers/SessionProvider';
+import { useUserProfile } from '@/components/providers/UserProfileProvider';
 import AgentGrid from '@/components/dashboard/AgentGrid';
-import LogoutButton from '@/components/auth/LogoutButton';
-import SettingsButton from '@/components/auth/SettingsButton';
-import DisplayName from '@/components/auth/DisplayName';
-import { UserProvider } from '@/components/providers/UserProvider';
-import type { Agent } from '@/hooks/useAgents';
+import SessionManager from '@/components/dashboard/SessionManager';
+import { useAgents } from '@/hooks/useAgents';
 
-export default async function DashboardPage() {
-  console.log('🚀 DashboardPage: Starting to load dashboard');
-  const supabase = createServerComponentClient({ cookies });
+export default function DashboardPage() {
+  console.log('🎯 DashboardPage: Client component rendering');
   
-  console.log('📊 DashboardPage: Fetching user data and agents');
-  const [{ data: agents }, userProfile, { data: profile, error: profileError }] = await Promise.all([
-    supabase.from('agents').select('*').order('name'),
-    supabase.auth.getUser(),
-    supabase.from('user_profiles').select('display_name').maybeSingle()
-  ]);
-
-  console.log('👤 DashboardPage: User profile data:', {
-    email: userProfile.data?.user?.email,
-    userId: userProfile.data?.user?.id,
-    hasProfile: !!profile,
-    profileError: profileError?.message
+  const { activeSession } = useSession();
+  const { displayName } = useUserProfile();
+  const { agents, isLoading } = useAgents();
+  
+  console.log('🎯 DashboardPage: Provider data', {
+    hasActiveSession: !!activeSession,
+    agentsCount: agents?.length,
+    isLoading
   });
 
-  const userEmail = userProfile.data?.user?.email ?? 'Explorer';
-  const displayName = (profile as { display_name?: string } | null)?.display_name || userEmail.split('@')[0] || 'User';
-  
-  console.log('✅ DashboardPage: Final display name:', displayName);
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-muted rounded w-1/2 mb-8"></div>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <UserProvider initialEmail={userEmail} initialDisplayName={displayName}>
-      <div className="space-y-8">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      {activeSession ? (
+        // Show session manager when there's an active session
+        <SessionManager />
+      ) : (
+        // Show homepage with available agents when no active session
+        <>
+          <header className="space-y-3">
             <p className="text-sm uppercase tracking-wide text-accent/80">Welcome back</p>
-            <div className="flex items-center gap-2">
-              <SettingsButton userEmail={userEmail} />
-              <LogoutButton />
+            <h1 className="text-2xl font-semibold text-text">
+              {displayName || 'User'}
+            </h1>
+            <p className="text-sm text-text-muted">
+              Select an agent from the sidebar to start a new session, or browse available agents below.
+            </p>
+          </header>
+          <section className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-text">Available Agents</h2>
+              <p className="text-xs uppercase tracking-wide text-text-muted">Config-driven &amp; custom</p>
             </div>
-          </div>
-          <DisplayName />
-          <p className="text-sm text-text-muted">
-            Click on any agent to view its details and configuration.
-          </p>
-        </header>
-        <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-text">Available Agents</h2>
-            <p className="text-xs uppercase tracking-wide text-text-muted">Config-driven &amp; custom</p>
-          </div>
-          <AgentGrid agents={(agents ?? []) as Agent[]} />
-        </section>
-      </div>
-    </UserProvider>
+            <AgentGrid agents={agents} />
+          </section>
+        </>
+      )}
+    </div>
   );
 }
