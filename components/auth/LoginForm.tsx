@@ -44,7 +44,7 @@ export default function LoginForm() {
         </p>
         <div className="mt-6 rounded-xl bg-background/60 p-4">
           <Auth
-            supabaseClient={supabase}
+            supabaseClient={supabase as any} // eslint-disable-line @typescript-eslint/no-explicit-any
             appearance={{
               theme: ThemeSupa,
               variables: {
@@ -58,7 +58,6 @@ export default function LoginForm() {
                     inputBackground: '#171b23',
                     inputBorder: '#2a2f3a',
                     inputText: '#f5f7fa',
-                    labelText: '#f5f7fa',
                     messageText: '#f5f7fa',
                     anchorTextColor: '#3b82f6',
                     anchorTextHoverColor: '#2563eb'

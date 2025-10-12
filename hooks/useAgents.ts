@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import type { Database } from '@/lib/database.types';
 
-export interface Agent extends Database['public']['Tables']['agents']['Row'] {}
+export type Agent = Database['public']['Tables']['agents']['Row'];
 
 export function useAgents() {
   const supabase = useSupabaseClient<Database>();

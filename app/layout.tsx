@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import SupabaseProvider from '@/components/providers/SupabaseProvider';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '@/lib/database.types';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +18,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = createServerComponentClient({ cookies });
   const {
     data: { session }
   } = await supabase.auth.getSession();

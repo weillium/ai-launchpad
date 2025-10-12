@@ -1,39 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Menu, PanelLeftClose, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useWorkspace } from '@/components/providers/WorkspaceProvider';
-import type { SessionRecord } from '@/hooks/useSessions';
 
 export default function Sidebar() {
-  const { sessions } = useWorkspace();
-  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const renderSession = (session: SessionRecord) => {
-    const isActive = pathname?.includes(session.id);
-    return (
-      <Link
-        key={session.id}
-        href={`/sessions/${session.id}`}
-        className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-muted/60 ${
-          isActive ? 'bg-muted text-text' : 'text-text-muted'
-        }`}
-      >
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-muted text-accent">
-          {session.agents?.icon ?? '🧠'}
-        </div>
-        <div className="flex flex-1 flex-col">
-          <span className="font-medium group-hover:text-text">{session.title ?? session.agents?.name}</span>
-          <span className="text-xs text-text-muted">
-            {new Date(session.last_active_at).toLocaleDateString()}
-          </span>
-        </div>
-      </Link>
-    );
-  };
 
   return (
     <aside
@@ -66,16 +38,20 @@ export default function Sidebar() {
       </div>
       <div className="mt-6 flex-1 space-y-2 overflow-y-auto px-4 pb-6">
         <p className={`text-xs uppercase tracking-wide text-text-muted ${isCollapsed ? 'text-center' : ''}`}>
-          Active Sessions
+          Navigation
         </p>
         <div className="space-y-2">
-          {sessions.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-border/60 bg-background/40 p-4 text-center text-xs text-text-muted">
-              No active sessions yet.
-            </p>
-          ) : (
-            sessions.map(renderSession)
-          )}
+          <Link
+            href="/"
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-muted/60 ${
+              !isCollapsed ? 'text-text-muted' : 'text-text-muted'
+            }`}
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-muted text-accent">
+              🏠
+            </div>
+            {!isCollapsed && <span className="font-medium">Dashboard</span>}
+          </Link>
         </div>
       </div>
     </aside>

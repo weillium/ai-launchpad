@@ -4,14 +4,12 @@ import AgentGrid from '@/components/dashboard/AgentGrid';
 import LogoutButton from '@/components/auth/LogoutButton';
 import SettingsButton from '@/components/auth/SettingsButton';
 import DisplayName from '@/components/auth/DisplayName';
-import ProfileInitializer from '@/components/auth/ProfileInitializer';
 import { UserProvider } from '@/components/providers/UserProvider';
-import type { Database } from '@/lib/database.types';
 import type { Agent } from '@/hooks/useAgents';
 
 export default async function DashboardPage() {
   console.log('🚀 DashboardPage: Starting to load dashboard');
-  const supabase = createServerComponentClient<Database>({ cookies: () => cookies() });
+  const supabase = createServerComponentClient({ cookies });
   
   console.log('📊 DashboardPage: Fetching user data and agents');
   const [{ data: agents }, userProfile, { data: profile, error: profileError }] = await Promise.all([
@@ -28,13 +26,12 @@ export default async function DashboardPage() {
   });
 
   const userEmail = userProfile.data?.user?.email ?? 'Explorer';
-  const displayName = profile?.display_name || userEmail.split('@')[0] || 'User';
+  const displayName = (profile as { display_name?: string } | null)?.display_name || userEmail.split('@')[0] || 'User';
   
   console.log('✅ DashboardPage: Final display name:', displayName);
 
   return (
     <UserProvider initialEmail={userEmail} initialDisplayName={displayName}>
-      <ProfileInitializer />
       <div className="space-y-8">
         <header className="space-y-3">
           <div className="flex items-center justify-between">
@@ -46,7 +43,7 @@ export default async function DashboardPage() {
           </div>
           <DisplayName />
           <p className="text-sm text-text-muted">
-            Launch modular AI agents. Sessions are saved so you can resume your work anytime.
+            Click on any agent to view its details and configuration.
           </p>
         </header>
         <section className="space-y-6">

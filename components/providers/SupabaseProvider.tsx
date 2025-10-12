@@ -22,7 +22,7 @@ export default function SupabaseProvider({
   );
 
   return (
-    <SessionContextProvider supabaseClient={supabaseClient} initialSession={initialSession}>
+    <SessionContextProvider supabaseClient={supabaseClient as any} initialSession={initialSession}>
       {children}
     </SessionContextProvider>
   );
