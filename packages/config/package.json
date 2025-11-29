@@ -1,0 +1,14 @@
+{
+  "name": "@ai-launchpad/config",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "eslint-preset.js",
+    "tsconfig.json"
+  ],
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "typescript": "^5.3.3"
+  }
+}
